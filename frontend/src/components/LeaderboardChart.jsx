@@ -12,11 +12,11 @@ import { Square3Stack3DIcon } from "@heroicons/react/24/outline";
 
 const LeaderboardChart = () => {
 	const [artists, setArtists] = useState([]);
-	const socket = socketIOClient("http://localhost:5000");
+	const socket = socketIOClient("https://kjpollsapi.onrender.com");
 
 	useEffect(() => {
 		axios
-			.get("http://localhost:5000/artists")
+			.get("https://kjpollsapi.onrender.com/artists")
 			.then((response) => setArtists(response.data))
 			.catch((error) => console.error("Error fetching artists:", error));
 

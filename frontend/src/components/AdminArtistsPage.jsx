@@ -10,14 +10,14 @@ const AdminArtistsPage = () => {
 
 	useEffect(() => {
 		axios
-			.get("http://localhost:5000/artists")
+			.get("https://kjpollsapi.onrender.com/artists")
 			.then((response) => setArtists(response.data))
 			.catch((error) => console.error("Error fetching artists:", error));
 	}, []);
 
 	const handleAddArtist = () => {
 		axios
-			.post("http://localhost:5000/admin/artists", {
+			.post("https://kjpollsapi.onrender.com/admin/artists", {
 				name: newArtistName,
 				image: newArtistImage,
 			})
@@ -31,7 +31,7 @@ const AdminArtistsPage = () => {
 
 	const handleDeleteArtist = (id) => {
 		axios
-			.delete(`http://localhost:5000/admin/artists/${id}`)
+			.delete(`https://kjpollsapi.onrender.com/admin/artists/${id}`)
 			.then(() => {
 				const updatedArtists = artists.filter((artist) => artist._id !== id);
 				setArtists(updatedArtists);
@@ -48,7 +48,7 @@ const AdminArtistsPage = () => {
 
 	const handleUpdateArtist = () => {
 		axios
-			.put(`http://localhost:5000/admin/artists/${editArtistId}`, {
+			.put(`https://kjpollsapi.onrender.com/admin/artists/${editArtistId}`, {
 				name: newArtistName,
 				image: newArtistImage,
 			})

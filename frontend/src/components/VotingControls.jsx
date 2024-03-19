@@ -16,7 +16,7 @@ const VotingControls = () => {
 
 	useEffect(() => {
 		axios
-			.get("http://localhost:5000/artists")
+			.get("https://kjpollsapi.onrender.com/artists")
 			.then((response) => setArtists(response.data))
 			.catch((error) => console.error("Error fetching artists:", error));
 	}, []);
@@ -130,7 +130,9 @@ const VotingControls = () => {
 
 	const handleVote = (artistName) => {
 		axios
-			.post(`http://localhost:5000/vote/${encodeURIComponent(artistName)}`)
+			.post(
+				`https://kjpollsapi.onrender.com/vote/${encodeURIComponent(artistName)}`
+			)
 			.then(() => {
 				// Show a toast when the vote is successful
 				toast.success("You have successfully voted!");

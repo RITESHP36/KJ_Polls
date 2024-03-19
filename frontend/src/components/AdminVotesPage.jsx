@@ -4,7 +4,7 @@ import socketIOClient from "socket.io-client";
 
 const AdminVotesPage = () => {
 	const [votes, setVotes] = useState([]);
-	const socket = socketIOClient("http://localhost:5000");
+	const socket = socketIOClient("https://kjpollsapi.onrender.com");
 
 	useEffect(() => {
 		const updateVotes = (updatedArtist) => {
@@ -16,7 +16,7 @@ const AdminVotesPage = () => {
 		};
 
 		axios
-			.get("http://localhost:5000/admin/votes")
+			.get("https://kjpollsapi.onrender.com/admin/votes")
 			.then((response) => setVotes(response.data))
 			.catch((error) => console.error("Error fetching votes:", error));
 
@@ -51,7 +51,7 @@ const AdminVotesPage = () => {
 	const increaseVotes = (artistName) => {
 		axios
 			.post(
-				`http://localhost:5000/admin/artists/${encodeURIComponent(
+				`https://kjpollsapi.onrender.com/admin/artists/${encodeURIComponent(
 					artistName
 				)}/increase-votes`
 			)
@@ -61,7 +61,7 @@ const AdminVotesPage = () => {
 	const decreaseVotes = (artistName) => {
 		axios
 			.post(
-				`http://localhost:5000/admin/artists/${encodeURIComponent(
+				`https://kjpollsapi.onrender.com/admin/artists/${encodeURIComponent(
 					artistName
 				)}/decrease-votes`
 			)
