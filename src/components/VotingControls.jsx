@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 import { db } from "../firebase";
-import { set, ref, onValue, update,get } from "firebase/database";
-
-import VotingCountdown from "./VotingCountdown";
+import { set, ref, onValue, update, get } from "firebase/database";
 
 const VotingControls = () => {
 	const [artist, setArtist] = useState("");
@@ -154,23 +152,27 @@ const VotingControls = () => {
 	const handleVote = (artistName) => {
 		const artistsRef = ref(db, "artists");
 		get(artistsRef).then((snapshot) => {
-		  const artists = snapshot.val();
-		  const artistKey = Object.keys(artists).find(key => artists[key].name === artistName);
-		  if (artistKey) {
-			const artistRef = ref(db, `artists/${artistKey}`);
-			update(artistRef, { votes: artists[artistKey].votes + 1 }).then(() => {
-			  // Show a toast when the vote is successful
-			  toast.success("You have successfully voted!");
-			  // Store the voting status in the local storage
-			  localStorage.setItem("voted", "true");
-			  localStorage.setItem(`${artistName}`, "true");
-			}).catch((error) => console.error("Error voting:", error));
-		  }
+			const artists = snapshot.val();
+			const artistKey = Object.keys(artists).find(
+				(key) => artists[key].name === artistName
+			);
+			if (artistKey) {
+				const artistRef = ref(db, `artists/${artistKey}`);
+				update(artistRef, { votes: artists[artistKey].votes + 1 })
+					.then(() => {
+						// Show a toast when the vote is successful
+						toast.success("You have successfully voted!");
+						// Store the voting status in the local storage
+						localStorage.setItem("voted", "true");
+						localStorage.setItem(`${artistName}`, "true");
+					})
+					.catch((error) => console.error("Error voting:", error));
+			}
 		});
-	  };
+	};
 
 	return (
-		<div className="bg-white shadow-xl rounded p-6 mx-40 mt-10 ">
+		<div className="bg-white shadow-xl rounded p-6 mx-10 md:mx-auto mt-10 md:w-2/3 ">
 			<h2 className="text-lg font-semibold mb-4">Voting Controls</h2>
 			<div className="mb-4">
 				<label
@@ -225,15 +227,15 @@ const VotingControls = () => {
 					onChange={(e) => setVotingTime(e.target.value)}
 				/>
 			</div>
-			<div className="flex justify-between">
+			<div className="flex flex-col md:flex-row md:justify-between">
 				<button
-					className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+					className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mb-2 md:mb-0 md:mr-2"
 					onClick={handleStartVoting}
 					disabled={!artist} // Disable the button if no artist is selected
 				>
 					Start Voting
 				</button>
-				<div className="flex items-center mt-4">
+				<div className="flex flex-col md:flex-row items-center mt-4">
 					<input
 						type="number"
 						className="mr-2 px-2 py-1 border border-gray-300 rounded-md shadow-sm"
@@ -241,7 +243,7 @@ const VotingControls = () => {
 						onChange={(e) => setNewBufferTime(e.target.value)}
 					/>
 					<button
-						className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mr-2"
+						className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mb-2 md:mb-0 md:mr-2"
 						onClick={handleUpdateBufferTime}
 					>
 						Update Buffer Time

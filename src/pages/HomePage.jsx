@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 
+import VotingCountdown from "../components/VotingCountdown";
+
 const HomePage = () => {
 	const [artists, setArtists] = useState([]);
 
@@ -18,6 +20,8 @@ const HomePage = () => {
 	}, []);
 
 	return (
+		<>
+		<VotingCountdown />
 		<div className="container mx-auto py-5 px-4 sm:px-0 bg-gray-100">
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 				{artists.map((artist) => (
@@ -36,6 +40,7 @@ const HomePage = () => {
 				))}
 			</div>
 		</div>
+		</>
 	);
 };
 
