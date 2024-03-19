@@ -1,54 +1,23 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import socketIOClient from "socket.io-client";
+import { db } from "../firebase";
+import { ref, onValue } from "firebase/database";
 import Chart from "react-apexcharts";
-import {
-	Card,
-	CardBody,
-	CardHeader,
-	Typography,
-} from "@material-tailwind/react";
-import { Square3Stack3DIcon } from "@heroicons/react/24/outline";
+import { Card, CardBody, CardHeader } from "@material-tailwind/react";
 
 const LeaderboardChart = () => {
 	const [artists, setArtists] = useState([]);
-	const socket = socketIOClient("https://kjpollsapi.onrender.com");
 
 	useEffect(() => {
-		axios
-			.get("https://kjpollsapi.onrender.com/artists")
-			.then((response) => setArtists(response.data))
-			.catch((error) => console.error("Error fetching artists:", error));
-
-		socket.on("voteUpdate", (artistName) => {
-			setArtists((prevArtists) =>
-				prevArtists.map((artist) =>
-					artist.name === artistName
-						? { ...artist, votes: artist.votes + 1 }
-						: artist
-				)
-			);
-		});
-
-		socket.on("artistChange", (data) => {
-			const { type, artist } = data;
-			if (type === "add") {
-				setArtists((prevArtists) => [...prevArtists, artist]);
-			} else if (type === "update") {
-				setArtists((prevArtists) =>
-					prevArtists.map((a) => (a._id === artist._id ? artist : a))
-				);
-			} else if (type === "delete") {
-				setArtists((prevArtists) =>
-					prevArtists.filter((a) => a._id !== artist._id)
-				);
+		const artistsRef = ref(db, "artists");
+		const unsubscribe = onValue(artistsRef, (snapshot) => {
+			const data = snapshot.val();
+			if (data) {
+				setArtists(Object.values(data));
 			}
 		});
 
-		return () => {
-			socket.disconnect();
-		};
-	}, [socket]);
+		return () => unsubscribe();
+	}, []);
 
 	const chartConfig = {
 		type: "bar",

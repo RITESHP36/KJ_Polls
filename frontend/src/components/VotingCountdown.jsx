@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { db } from "../firebase";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue,get,update } from "firebase/database";
 
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -18,6 +18,7 @@ const VotingCountdown = () => {
 	const [firebaseVotingTime, setFirebaseVotingTime] = useState(0);
 	const [firebaseArtist, setFirebaseArtist] = useState("");
 	const [firebaseVotingActive, setFirebaseVotingActive] = useState(false);
+
 	useEffect(() => {
 		const votingControlsRef = ref(db, "votingControls");
 		const unsubscribe = onValue(votingControlsRef, (snapshot) => {
@@ -120,6 +121,24 @@ const VotingCountdown = () => {
 			setToastShown(false);
 		}
 	}, [bufferCountdown, votingCountdown, artist, toastShown]);
+
+    const handleVote = (artistName) => {
+        const artistsRef = ref(db, "artists");
+        get(artistsRef).then((snapshot) => {
+          const artists = snapshot.val();
+          const artistKey = Object.keys(artists).find(key => artists[key].name === artistName);
+          if (artistKey) {
+            const artistRef = ref(db, `artists/${artistKey}`);
+            update(artistRef, { votes: artists[artistKey].votes + 1 }).then(() => {
+              // Show a toast when the vote is successful
+              toast.success("You have successfully voted!");
+              // Store the voting status in the local storage
+              localStorage.setItem("voted", "true");
+              localStorage.setItem(`${artistName}`, "true");
+            }).catch((error) => console.error("Error voting:", error));
+          }
+        });
+      };
 
 	return (
 		<div>

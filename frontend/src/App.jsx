@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import VotingCountdown from "./components/VotingCountdown";
+import AdminArtistsPage from "./components/AdminArtistsPage";
 
 import { Toaster } from "react-hot-toast";
 
@@ -18,6 +19,7 @@ function App() {
 					<Route path="/" element={<HomePage />} />
 					<Route path="/admin" element={<AdminDashboard />} />
 					<Route path="/vote" element={<VotingCountdown />} />
+					<Route path="/admin/artists" element={<AdminArtistsPage />} />
 				</Routes>
 			</Router>
 			<Footer />

@@ -1,54 +1,36 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import socketIOClient from "socket.io-client";
+import { db } from "../firebase";
+import { ref, onValue, update, get } from "firebase/database";
 
 const HomePage = () => {
 	const [artists, setArtists] = useState([]);
-	const socket = socketIOClient("https://kjpollsapi.onrender.com");
 
 	useEffect(() => {
-		axios
-			.get("https://kjpollsapi.onrender.com/artists")
-			.then((response) => setArtists(response.data))
-			.catch((error) => console.error("Error fetching artists:", error));
-
-		socket.on("voteUpdate", (artistName) => {
-			setArtists((prevArtists) =>
-				prevArtists.map((artist) =>
-					artist.name === artistName
-						? { ...artist, votes: artist.votes + 1 }
-						: artist
-				)
-			);
-		});
-
-		socket.on("artistChange", (data) => {
-			const { type, artist } = data;
-			if (type === "add") {
-				setArtists((prevArtists) => [...prevArtists, artist]);
-			} else if (type === "update") {
-				setArtists((prevArtists) =>
-					prevArtists.map((a) => (a._id === artist._id ? artist : a))
-				);
-			} else if (type === "delete") {
-				setArtists((prevArtists) =>
-					prevArtists.filter((a) => a._id !== artist._id)
-				);
+		const artistsRef = ref(db, "artists");
+		const unsubscribe = onValue(artistsRef, (snapshot) => {
+			const data = snapshot.val();
+			if (data) {
+				setArtists(Object.values(data));
 			}
 		});
 
-		return () => {
-			socket.disconnect();
-		};
-	}, [socket]);
+		return () => unsubscribe();
+	}, []);
 
 	const handleVote = (artistName) => {
-		axios
-			.post(
-				`https://kjpollsapi.onrender.com/vote/${encodeURIComponent(artistName)}`
-			)
-			.catch((error) => console.error("Error voting:", error));
+		const artistsRef = ref(db, "artists");
+		get(artistsRef).then((snapshot) => {
+			const artists = snapshot.val();
+			const artistKey = Object.keys(artists).find(
+				(key) => artists[key].name === artistName
+			);
+			if (artistKey) {
+				const artistRef = ref(db, `artists/${artistKey}`);
+				update(artistRef, { votes: artists[artistKey].votes + 1 });
+			}
+		});
 	};
+
 	return (
 		<div className="container mx-auto py-5 px-4 sm:px-0 bg-gray-100">
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

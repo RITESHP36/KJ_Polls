@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { db } from "../firebase";
+import { ref, push, set, update, onValue } from "firebase/database";
 
 const AdminArtistsPage = () => {
 	const [artists, setArtists] = useState([]);
@@ -9,34 +10,36 @@ const AdminArtistsPage = () => {
 	const [editArtistId, setEditArtistId] = useState(null);
 
 	useEffect(() => {
-		axios
-			.get("https://kjpollsapi.onrender.com/artists")
-			.then((response) => setArtists(response.data))
-			.catch((error) => console.error("Error fetching artists:", error));
+		const artistsRef = ref(db, "artists");
+		const unsubscribe = onValue(artistsRef, (snapshot) => {
+			const data = snapshot.val();
+			if (data) {
+				setArtists(Object.values(data));
+			}
+		});
+
+		// Clean up function
+		return () => unsubscribe();
 	}, []);
 
 	const handleAddArtist = () => {
-		axios
-			.post("https://kjpollsapi.onrender.com/admin/artists", {
-				name: newArtistName,
-				image: newArtistImage,
-			})
-			.then((response) => {
-				setArtists([...artists, response.data]);
-				setNewArtistName("");
-				setNewArtistImage("");
-			})
-			.catch((error) => console.error("Error adding artist:", error));
+		const newArtistRef = push(ref(db, "artists"));
+		set(newArtistRef, {
+			name: newArtistName,
+			image: newArtistImage,
+			votes: 0,
+		}).then(() => {
+			setArtists([...artists, { id: newArtistRef.key, name: newArtistName, image: newArtistImage, votes: 0 }]);
+			setNewArtistName("");
+			setNewArtistImage("");
+		}).catch((error) => console.error("Error adding artist:", error));
 	};
 
 	const handleDeleteArtist = (id) => {
-		axios
-			.delete(`https://kjpollsapi.onrender.com/admin/artists/${id}`)
-			.then(() => {
-				const updatedArtists = artists.filter((artist) => artist._id !== id);
-				setArtists(updatedArtists);
-			})
-			.catch((error) => console.error("Error deleting artist:", error));
+		update(ref(db, `artists/${id}`), null).then(() => {
+			const updatedArtists = artists.filter((artist) => artist.id !== id);
+			setArtists(updatedArtists);
+		}).catch((error) => console.error("Error deleting artist:", error));
 	};
 
 	const handleEditArtist = (id, name, image) => {
@@ -47,25 +50,22 @@ const AdminArtistsPage = () => {
 	};
 
 	const handleUpdateArtist = () => {
-		axios
-			.put(`https://kjpollsapi.onrender.com/admin/artists/${editArtistId}`, {
-				name: newArtistName,
-				image: newArtistImage,
-			})
-			.then(() => {
-				const updatedArtists = artists.map((artist) => {
-					if (artist._id === editArtistId) {
-						return { ...artist, name: newArtistName, image: newArtistImage };
-					}
-					return artist;
-				});
-				setArtists(updatedArtists);
-				setIsEditing(false);
-				setEditArtistId(null);
-				setNewArtistName("");
-				setNewArtistImage("");
-			})
-			.catch((error) => console.error("Error updating artist:", error));
+		update(ref(db, `artists/${editArtistId}`), {
+			name: newArtistName,
+			image: newArtistImage,
+		}).then(() => {
+			const updatedArtists = artists.map((artist) => {
+				if (artist.id === editArtistId) {
+					return { ...artist, name: newArtistName, image: newArtistImage };
+				}
+				return artist;
+			});
+			setArtists(updatedArtists);
+			setIsEditing(false);
+			setEditArtistId(null);
+			setNewArtistName("");
+			setNewArtistImage("");
+		}).catch((error) => console.error("Error updating artist:", error));
 	};
 
 	return (
@@ -105,8 +105,8 @@ const AdminArtistsPage = () => {
 				</div>
 				<table className="min-w-full divide-y divide-gray-200">
 					<tbody className="bg-white divide-y divide-gray-200">
-						{artists.map((artist) => (
-							<tr key={artist._id}>
+						{artists.map((artist,index) => (
+							<tr key={index}>
 								<td className="px-6 py-4 whitespace-nowrap">
 									<div className="flex items-center">
 										{artist.image && (
@@ -125,14 +125,14 @@ const AdminArtistsPage = () => {
 									<button
 										className="text-blue-600 hover:text-blue-900 mr-2"
 										onClick={() =>
-											handleEditArtist(artist._id, artist.name, artist.image)
+											handleEditArtist(artist.id, artist.name, artist.image)
 										}
 									>
 										Edit
 									</button>
 									<button
 										className="text-red-600 hover:text-red-900"
-										onClick={() => handleDeleteArtist(artist._id)}
+										onClick={() => handleDeleteArtist(artist.id)}
 									>
 										Delete
 									</button>
@@ -147,3 +147,4 @@ const AdminArtistsPage = () => {
 };
 
 export default AdminArtistsPage;
+

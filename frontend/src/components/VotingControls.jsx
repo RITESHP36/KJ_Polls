@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 import { db } from "../firebase";
 import { uid } from "uid";
-import { set, ref, onValue, update } from "firebase/database";
+import { set, ref, onValue, update,get } from "firebase/database";
 
 const VotingControls = () => {
 	const [artist, setArtist] = useState("");
@@ -14,11 +14,18 @@ const VotingControls = () => {
 	const [votingCountdown, setVotingCountdown] = useState(0);
 	const [artists, setArtists] = useState([]);
 
+	// Fetch the artists from Firebase
 	useEffect(() => {
-		axios
-			.get("https://kjpollsapi.onrender.com/artists")
-			.then((response) => setArtists(response.data))
-			.catch((error) => console.error("Error fetching artists:", error));
+		const artistsRef = ref(db, "artists");
+		const unsubscribe = onValue(artistsRef, (snapshot) => {
+			const data = snapshot.val();
+			if (data) {
+				setArtists(Object.values(data));
+			}
+		});
+
+		// Clean up function
+		return () => unsubscribe();
 	}, []);
 
 	useEffect(() => {
@@ -129,19 +136,22 @@ const VotingControls = () => {
 	};
 
 	const handleVote = (artistName) => {
-		axios
-			.post(
-				`https://kjpollsapi.onrender.com/vote/${encodeURIComponent(artistName)}`
-			)
-			.then(() => {
-				// Show a toast when the vote is successful
-				toast.success("You have successfully voted!");
-				// Store the voting status in the local storage
-				localStorage.setItem("voted", "true");
-				localStorage.setItem(`${artistName}`, "true");
-			})
-			.catch((error) => console.error("Error voting:", error));
-	};
+		const artistsRef = ref(db, "artists");
+		get(artistsRef).then((snapshot) => {
+		  const artists = snapshot.val();
+		  const artistKey = Object.keys(artists).find(key => artists[key].name === artistName);
+		  if (artistKey) {
+			const artistRef = ref(db, `artists/${artistKey}`);
+			update(artistRef, { votes: artists[artistKey].votes + 1 }).then(() => {
+			  // Show a toast when the vote is successful
+			  toast.success("You have successfully voted!");
+			  // Store the voting status in the local storage
+			  localStorage.setItem("voted", "true");
+			  localStorage.setItem(`${artistName}`, "true");
+			}).catch((error) => console.error("Error voting:", error));
+		  }
+		});
+	  };
 
 	return (
 		<div className="bg-white shadow-xl rounded p-6 mx-40 mt-10 ">
