@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import VotingCountdown from "./components/VotingCountdown";
+import FormPage from "./components/FormPage";
 
 import { Toaster } from "react-hot-toast";
 
@@ -15,9 +16,10 @@ function App() {
 			<Navbar />
 			<Router>
 				<Routes>
-					<Route path="/" element={<HomePage />} />
+					<Route path="/" element={<FormPage />} />
+					{/* <Route path="/" element={<HomePage />} /> */}
 					<Route path="/admin" element={<AdminDashboard />} />
-					<Route path="/vote" element={<VotingCountdown />} />
+					{/* <Route path="/vote" element={<VotingCountdown />} /> */}
 				</Routes>
 			</Router>
 			<Footer />
