@@ -63,9 +63,11 @@ const FormPage = () => {
 
 				{/*  Buttons to navigate through different pages */}
 				<div className="pt-12">
-					<button className="bg-blue-500 hover:bg-blue-700 text-white text-2xl font-bold py-2 px-4 rounded">
-						Vote Now
-					</button>
+					<a href="https://surveyheart.com/form/65f96e36b8cda656172db9eb">
+						<button className="bg-blue-500 hover:bg-blue-700 text-white text-2xl font-bold py-2 px-4 rounded">
+							Vote Now
+						</button>
+					</a>
 				</div>
 			</div>
 		</div>
