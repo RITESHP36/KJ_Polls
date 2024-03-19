@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.star {
+    position: absolute;
+    width: 3px; /* Increase size for more visibility */
+    height: 3px;
+    background: white;
+    box-shadow: 0 0 5px #fff, /* Add glow effect */
+                            0 0 10px #fff,
+                            0 0 15px #fff,
+                            0 0 20px #fff;
+    animation: glitter 3s infinite;
+}
+
+@keyframes glitter {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.text-reveal-container {
+display: inline-block;
+overflow: hidden;
+white-space: nowrap;
+animation: showup 7s infinite;
+}
+
+.text-reveal {
+width: 0px;
+animation: reveal 7s infinite;
+}
+
+.text-reveal span {
+margin-left: -800px;
+animation: slidein 7s infinite;
+}
+
+@keyframes showup {
+0% {opacity: 0;}
+20% {opacity: 1;}
+80% {opacity: 1;}
+100% {opacity: 0;}
+}
+
+@keyframes slidein {
+0% { margin-left: -800px; }
+20% { margin-left: -800px; }
+35% { margin-left: 0px; }
+100% { margin-left: 0px; }
+}
+
+@keyframes reveal {
+0% {opacity: 0; width: 0px;}
+20% {opacity: 1; width: 0px;}
+30% {width: 355px;}
+80% {opacity: 1;}
+100% {opacity: 0; width: 355px;}
+}
