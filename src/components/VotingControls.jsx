@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 
 import { db } from "../firebase";
-import { uid } from "uid";
 import { set, ref, onValue, update,get } from "firebase/database";
+
+import VotingCountdown from "./VotingCountdown";
 
 const VotingControls = () => {
 	const [artist, setArtist] = useState("");
@@ -33,6 +33,10 @@ const VotingControls = () => {
 		const bufferTimer = setInterval(() => {
 			if (bufferCountdown) {
 				setBufferCountdown((prevCountdown) => prevCountdown - 1);
+				// update firebase
+				update(ref(db, "votingControls"), {
+					bufferCountdown,
+				});
 			}
 		}, 1000);
 
@@ -45,6 +49,10 @@ const VotingControls = () => {
 		const votingTimer = setInterval(() => {
 			if (votingCountdown) {
 				setVotingCountdown((prevCountdown) => prevCountdown - 1);
+				// update firebase
+				update(ref(db, "votingControls"), {
+					votingCountdown,
+				});
 			}
 		}, 1000);
 
@@ -69,6 +77,12 @@ const VotingControls = () => {
 		if (!toastShown && bufferCountdown === 0 && votingCountdown > 0) {
 			toast(`Voting Lines are active. You can now vote for ${artist}`);
 			setToastShown(true);
+
+			// update firebase
+			update(ref(db, "votingControls"), {
+				bufferCountdown: 0,
+				votingTime,
+			});
 		}
 		if (votingCountdown === 0) {
 			setToastShown(false);
@@ -130,6 +144,8 @@ const VotingControls = () => {
 		update(ref(db, "votingControls"), {
 			bufferTime: 0,
 			votingTime: 0,
+			bufferCountdown: 0,
+			votingCountdown: 0,
 			artist: "",
 			votingActive: false,
 		});

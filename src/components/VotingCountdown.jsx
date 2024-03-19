@@ -4,7 +4,6 @@ import { db } from "../firebase";
 import { ref, onValue,get,update } from "firebase/database";
 
 import toast from "react-hot-toast";
-import axios from "axios";
 
 const VotingCountdown = () => {
 	const [bufferCountdown, setBufferCountdown] = useState(0);
@@ -18,6 +17,8 @@ const VotingCountdown = () => {
 	const [firebaseVotingTime, setFirebaseVotingTime] = useState(0);
 	const [firebaseArtist, setFirebaseArtist] = useState("");
 	const [firebaseVotingActive, setFirebaseVotingActive] = useState(false);
+	const [firebaseBufferCountdown, setFirebaseBufferCountdown] = useState(0);
+	const [firebaseVotingCountdown, setFirebaseVotingCountdown] = useState(0);
 
 	useEffect(() => {
 		const votingControlsRef = ref(db, "votingControls");
@@ -28,7 +29,10 @@ const VotingCountdown = () => {
 				setFirebaseVotingTime(data.votingTime);
 				setFirebaseArtist(data.artist);
 				setFirebaseVotingActive(data.votingActive);
+				setFirebaseBufferCountdown(data.bufferCountdown);
+				setFirebaseVotingCountdown(data.votingCountdown);
 			}
+			console.log("Data from Firebase: ", data);
 		});
 
 		// Clean up function
@@ -63,12 +67,20 @@ const VotingCountdown = () => {
                 setArtist("NULL");
                 setVotingActive(false);
             }
+			if(firebaseBufferCountdown < bufferCountdown){
+				setBufferCountdown(firebaseBufferCountdown);
+			}
+			if(firebaseVotingCountdown < votingCountdown){
+				setVotingCountdown(firebaseVotingCountdown);
+			}
 		}
 	}, [
 		firebaseBufferTime,
 		firebaseVotingTime,
 		firebaseArtist,
 		firebaseVotingActive,
+		firebaseBufferCountdown,
+		firebaseVotingCountdown,
 	]);
 
 	useEffect(() => {
@@ -144,19 +156,12 @@ const VotingCountdown = () => {
 
 	return (
 		<div>
-			{/* <h2>Voting Countdown</h2>
-			<p>Buffer Countdown: {bufferCountdown}</p>
-			<p>Voting Countdown: {votingCountdown}</p>
-			<p>Buffer Time: {bufferTime}</p>
-			<p>Voting Time: {votingTime}</p>
-			<p>Artist: {artist}</p>
-			<p>Voting Active: {votingActive ? "Yes" : "No"}</p> */}
 			<div className="mt-4 border border-gray-300 p-4 rounded">
 				<div className="flex flex-col items-center justify-center h-96 bg-gray-100 text-gray-800">
 					{bufferCountdown <= 0 && votingCountdown <= 0 && (
 						<p className="text-xl">Voting Lines are not Active now</p>
 					)}
-					{bufferCountdown > 0 && (
+					{votingActive && bufferCountdown > 0 && (
 						<div className="text-center">
 							<p className="text-2xl mb-4">Voting Lines will be active soon</p>
 							<p className="text-xl mb-2">Artist: {artist}</p>
@@ -171,7 +176,7 @@ const VotingCountdown = () => {
 							<p className="text-lg">seconds</p>
 						</div>
 					)}
-					{bufferCountdown <= 0 && votingCountdown > 0 && (
+					{votingActive && bufferCountdown <= 0 && votingCountdown > 0 && (
 						<div className="text-center">
 							<p className="text-2xl mb-4">Voting Lines are active</p>
 							<p className="text-xl mb-2">Artist: {artist}</p>
