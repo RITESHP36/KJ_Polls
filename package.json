@@ -21,6 +21,7 @@
     "firebase": "^10.9.0",
     "http": "^0.0.1-security",
     "mongoose": "^8.2.1",
+    "node-sass": "^9.0.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.35",
+    "sass": "^1.72.0",
     "tailwindcss": "^3.4.1",
     "vite": "^5.1.6"
   }
